@@ -17,8 +17,9 @@ export class Session extends Document {
 
   @Prop()
   date: string;
+
+  @Prop({ default: Date.now, expires: 172800 })
+  createdAt: Date;
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);
-
-SessionSchema.index({ date: 1 }, { expireAfterSeconds: 172800 });
