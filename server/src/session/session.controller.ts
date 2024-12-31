@@ -22,7 +22,6 @@ export class SessionsController {
       timeZone: 'America/New_York',
     });
 
-    // Convert back to Date object
     return new Date(etString);
   }
 
@@ -55,7 +54,6 @@ export class SessionsController {
         date: this.formatEasternDate(startTimeET),
       };
 
-      // Validate that end_time is after start_time
       if (session.end_time <= session.start_time) {
         throw new HttpException(
           'End time must be after start time',
@@ -63,11 +61,9 @@ export class SessionsController {
         );
       }
 
-      // Validate that duration matches the time difference
       const calculatedDuration =
         (session.end_time.getTime() - session.start_time.getTime()) / 1000;
       if (Math.abs(calculatedDuration - body.duration) > 1) {
-        // 1 second tolerance
         throw new HttpException(
           'Duration does not match time difference',
           HttpStatus.BAD_REQUEST,
