@@ -15,27 +15,48 @@ export class SessionsController {
 
   private convertToEasternTime(timestamp: number): Date {
     // Create a date object from the Unix timestamp
-    const date = new Date(timestamp * 1000);
+    const utcDate = new Date(timestamp * 1000);
 
-    // Convert to Eastern Time string
-    const etString = date.toLocaleString('en-US', {
+    // Create a formatter for Eastern Time
+    const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
 
-    return new Date(etString);
+    // Get the parts
+    const parts = formatter.formatToParts(utcDate);
+    const dateObj: { [key: string]: string } = {};
+    parts.forEach((part) => {
+      if (part.type !== 'literal') {
+        dateObj[part.type] = part.value;
+      }
+    });
+
+    // Construct a new date in Eastern Time
+    return new Date(
+      `${dateObj.year}-${dateObj.month}-${dateObj.day}T${dateObj.hour}:${dateObj.minute}:${dateObj.second}`,
+    );
   }
 
   private formatEasternDate(date: Date): string {
-    return date
-      .toLocaleString('en-US', {
-        timeZone: 'America/New_York',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
-      .split(',')[0]
-      .split('/')
-      .join('-');
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+
+    const parts = formatter.formatToParts(date);
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    const year = parts.find((p) => p.type === 'year')?.value;
+
+    return `${month}-${day}-${year}`;
   }
 
   @Post('track')
